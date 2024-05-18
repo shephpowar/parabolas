@@ -1,0 +1,141 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from tkinter import Tk, Label, Entry, Button, Frame, Toplevel
+from tkinter.font import Font
+
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+characteristics_window = None
+def plot_parabola(a, b, c):
+    # Generate x values from -10 to 10
+    x = np.linspace(-10, 10, 100)
+
+    # Calculate y values using the given coefficients
+    y = a * x ** 2 + b * x + c
+
+    # Clear existing plot
+    plt.clf()
+
+    # Plot the parabola
+    plt.plot(x, y, color='#FF69B4', linewidth=4)
+
+    # Set the background color of the plot to grey
+    plt.gca().set_facecolor('#333333')
+
+    # Set axis labels and title
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Парабола: y = {}x^2 + {}x + {}'.format(a, b, c))
+
+
+    # Redraw the plot
+    plt.draw()
+    plt.pause(0.001)
+
+
+def update_coeffs():
+    # Get coefficients from entry fields
+    global a, b, c
+    a = float(entry_a.get())
+    b = float(entry_b.get())
+    c = float(entry_c.get())
+
+    # Close the existing characteristics window if it exists
+    if characteristics_window:
+        characteristics_window.destroy()
+
+
+    # Plot the parabola with new coefficients
+    plot_parabola(a, b, c)
+
+    # Calculate characteristics of the parabola
+    vertex_x = -b / (2 * a)
+    discriminant = b ** 2 - 4 * a * c
+    if discriminant >= 0:
+        x_intercepts = (-b + np.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
+        x_intercepts2 = (-b - np.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
+    else:
+        x_intercepts = 0
+        x_intercepts2 = 0
+
+    # Display characteristics in a separate window
+    show_characteristics(vertex_x, x_intercepts, x_intercepts2, discriminant)
+
+
+def show_characteristics(vertex_x, x_intercepts, x_intercepts2, discriminant):
+
+    # Create a new window for displaying characteristics
+    characteristics_window = Toplevel(root)
+    characteristics_window.title("Parabola Characteristics")
+    characteristics_window.configure(bg='#333333')
+
+    # Create labels for displaying characteristics
+    font = Font(family='Montserrat', size=14, weight='normal')
+    Label(characteristics_window, text="Вершина (x):", font=font, fg='white', bg='#333333').grid(row=0, column=0,
+                                                                                                 padx=10, pady=10)
+    Label(characteristics_window, text="{:.2f}".format(vertex_x), font=font, fg='white', bg='#333333').grid(row=0,
+                                                                                                            column=1,
+                                                                                                            padx=10,
+                                                                                                            pady=10)
+
+    Label(characteristics_window, text="корень x1 :", font=font, fg='white', bg='#333333').grid(row=1, column=0,
+                                                                                                padx=10, pady=10)
+    Label(characteristics_window, text="{:.2f}".format(x_intercepts), font=font, fg='white', bg='#333333').grid(row=1,
+                                                                                                                column=1,
+                                                                                                                padx=10,
+                                                                                                                pady=10)
+
+    Label(characteristics_window, text="корень x2 :", font=font, fg='white', bg='#333333').grid(row=2, column=0,
+                                                                                                padx=10, pady=10)
+    Label(characteristics_window, text="{:.2f}".format(x_intercepts2), font=font, fg='white', bg='#333333').grid(row=2,
+                                                                                                                 column=1,
+                                                                                                                 padx=10,
+                                                                                                                 pady=10)
+
+    Label(characteristics_window, text="Дискриминант :", font=font, fg='white', bg='#333333').grid(row=3, column=0,
+                                                                                                   padx=10, pady=10)
+    Label(characteristics_window, text="{:.2f}".format(discriminant), font=font, fg='white', bg='#333333').grid(row=3,
+                                                                                                                column=1,
+                                                                                                                padx=10,
+                                                                                                                pady=10)
+
+
+# Create tkinter window with dark grey background
+root = Tk()
+root.title("Parabola Plot")
+root.configure(bg='#333333')
+
+# Create frame for entry fields
+frame = Frame(root, bg='#333333')
+frame.pack(padx=10, pady=10)
+
+# Create labels for coefficients
+font = Font(family='Montserrat', size=14, weight='normal')
+Label(frame, text="a:", font=font, fg='white', bg='#333333').grid(row=0, column=0, padx=10, pady=10)
+Label(frame, text="b:", font=font, fg='white', bg='#333333').grid(row=1, column=0, padx=10, pady=10)
+Label(frame, text="c:", font=font, fg='white', bg='#333333').grid(row=2, column=0, padx=10, pady=10)
+
+# Create entry fields for coefficients
+entry_a = Entry(frame, width=10, font=font, fg='white', bg='#555555')
+entry_b = Entry(frame, width=10, font=font, fg='white', bg='#555555')
+entry_c = Entry(frame, width=10, font=font, fg='white', bg='#555555')
+entry_a.grid(row=0, column=1)
+entry_b.grid(row=1, column=1)
+entry_c.grid(row=2, column=1)
+
+# Create "Done" button
+button_done = Button(root, text="Done",font=font,fg='white', bg='#555555', command=update_coeffs)
+button_done.pack(pady=10)
+
+# Create matplotlib figure and canvas
+fig, ax = plt.subplots()
+ax.set_facecolor('#333333')
+canvas = FigureCanvasTkAgg(fig, master=root)
+canvas.get_tk_widget().pack(fill='both', expand=True)
+
+# Plot initial parabola
+a, b, c = 1, 0, 0
+plot_parabola(a, b, c)
+
+# Run tkinter event loop
+root.mainloop()
